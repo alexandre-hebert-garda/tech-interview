@@ -22,8 +22,9 @@ so please keep to one iteration at a time.
 - **Python or TypeScript.** Pick whichever you're strongest in, and any framework you
   like within it (or none). We care about how you build a service, not the stack.
 - **REST/HTTP returning JSON** — not tRPC, GraphQL, or RPC.
-- **The data is the sample `data.json`** (see below). Load it at startup. Iterations 1–2
-  only read it; Iteration 3 writes back to it.
+- **The data is the sample `data.json`** (see below). Load it at startup: Iteration 1
+  only reads it, Iteration 2 writes back to it, and Iteration 3 replaces the flat file
+  with a real database seeded from it.
 - **Times are ISO-8601 (UTC).** Some shifts run overnight and cross midnight.
 - Include a short **README in your submission** explaining how to run it and any
   assumptions you made.
@@ -40,8 +41,10 @@ The full sample file is in this repo as [`data.json`](./data.json).
 
 ## The two endpoints
 
-1. `GET /api/shifts/{id}/available-agents` — who can work this shift (Iterations 1 &amp; 2).
-2. `POST /api/shifts/{id}/assignments` — book an agent onto a shift (Iteration 3).
+1. `GET /api/shifts/{id}/available-agents` — who can work this shift (Iteration 1).
+2. `POST /api/shifts/{id}/assignments` — book an agent onto a shift (Iteration 2).
+
+From Iteration 3 onward both are backed by the database rather than the flat file.
 
 ## Submitting
 

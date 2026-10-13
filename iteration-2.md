@@ -1,46 +1,40 @@
-# Iteration 2 — Who is *actually* available?
+# Iteration 2 — Book an agent
 
-Same endpoint as before:
-
-```
-GET /api/shifts/{id}/available-agents
-```
-
-Two more things are now true about who counts as available. Being qualified
-(Iteration 1) is necessary but no longer sufficient.
-
-1. **Expired qualifications don't count.** A required qualification only counts if its
-   `expiresOn` is on or after the shift's `start`. Priya's `GUARD_LICENSE` expired
-   2026-08-31, so she isn't available for the September shifts.
-2. **No double-booking.** Exclude any agent already assigned (in `assignments`) to a
-   shift whose time window **overlaps** this one. Jordan is assigned to `shf_1`
-   (22:00–06:00), which overlaps `shf_2` (23:00–03:00) — so Jordan is out for `shf_2`,
-   and also out of `shf_1`'s own list, since he's already on it.
-
-## Example
+Now add a second endpoint that books an agent onto a shift.
 
 ```
-GET /api/shifts/shf_1/available-agents
+POST /api/shifts/{id}/assignments
+Content-Type: application/json
+
+{ "agentId": "agt_3" }
 ```
+
+On success, create an assignment, save it to `data.json`, and return it:
 
 ```json
-[
-  { "id": "agt_3", "name": "Marc Tremblay" }
-]
-```
+201 Created
 
-(Jordan is already assigned; Priya's licence is expired.)
+{ "id": "asg_2", "shiftId": "shf_2", "agentId": "agt_3" }
+```
 
 ## Rules
 
-- Two shifts overlap if one starts before the other ends. Shifts that only touch (one
-  ends exactly when the next starts) do **not** overlap.
-- Handle overnight shifts correctly (a 22:00→06:00 shift is 8 hours, not −16).
+A booking is only allowed when the agent is **available for that shift** — the exact same availability from Iteration 1 (qualified, not expired, not double-booked). Reject the booking and change nothing when:
+
+- the shift or agent doesn't exist → `404`;
+- the agent isn't available for the shift → `422`;
+- the shift is already full (its `headcount` is reached) → `409`.
+
+Two things must hold after a successful booking:
+
+- the new assignment is persisted in `data.json`;
+- calling `GET /api/shifts/{id}/available-agents` again reflects it straight away — the agent you just booked no longer appears as available, and neither do agents who now overlap it.
 
 ## Done when
 
-- Agents with an expired required qualification are excluded.
-- Agents booked on an overlapping shift are excluded.
-- `shf_1` and `shf_2` both return just Marc.
+- Booking Marc onto `shf_2` succeeds and appears in `data.json`.
+- Booking an unqualified or double-booked agent is rejected and writes nothing.
+- Booking onto a full shift returns `409`.
+- A booking made through `POST` immediately changes what `GET` returns.
 
 *When this works and is committed, move on to Iteration 3.*

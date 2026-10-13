@@ -1,42 +1,24 @@
-# Iteration 3 — Book an agent
+# Iteration 3 — Swap the flat file for a database
 
-Now add a second endpoint that books an agent onto a shift.
+So far the data has lived in `data.json`. Replace it with a real database. Use whatever you'd reach for in production — SQLite, Postgres, MySQL, anything — the choice is yours; be ready to say why.
 
-```
-POST /api/shifts/{id}/assignments
-Content-Type: application/json
+## What to do
 
-{ "agentId": "agt_3" }
-```
-
-On success, create an assignment, save it to `data.json`, and return it:
-
-```json
-201 Created
-
-{ "id": "asg_2", "shiftId": "shf_2", "agentId": "agt_3" }
-```
+- Design a schema for agents, shifts, qualifications and assignments.
+- Load the seed data from `data.json` into the database once, so the API starts from the same state it does today.
+- Make **both** endpoints read and write the database instead of the file. `data.json` is now just the seed — nothing reads it at request time.
 
 ## Rules
 
-A booking is only allowed when the agent is **available for that shift** — the exact
-same availability from Iteration 2 (qualified, not expired, not double-booked). Reject
-the booking and change nothing when:
-
-- the shift or agent doesn't exist → `404`;
-- the agent isn't available for the shift → `422`;
-- the shift is already full (its `headcount` is reached) → `409`.
-
-Two things must hold after a successful booking:
-
-- the new assignment is persisted in `data.json`;
-- calling `GET /api/shifts/{id}/available-agents` again reflects it straight away — the
-  agent you just booked no longer appears as available, and neither do agents who now
-  overlap it.
+- The two endpoints keep the exact same contracts and status codes from Iterations 1 and 2. Nothing changes for a client calling the API.
+- A booking must be **atomic**: two requests trying to take the last spot on a shift must not both succeed. Decide how you enforce that (a transaction, a constraint, a lock) and be ready to explain it.
+- Availability is still computed from the same rules — just sourced from the database now.
 
 ## Done when
 
-- Booking Marc onto `shf_2` succeeds and appears in `data.json`.
-- Booking an unqualified or double-booked agent is rejected and writes nothing.
-- Booking onto a full shift returns `409`.
-- A booking made through `POST` immediately changes what `GET` returns.
+- The app boots from an empty database, loads the seed, and serves both endpoints.
+- Booking Marc onto `shf_2` persists and survives a restart.
+- Every status code from Iterations 1 and 2 still behaves identically.
+- Two concurrent bookings for the last spot don't both win.
+
+*This is the last coding iteration. Commit it and we'll dig into the design together in the interview.*
