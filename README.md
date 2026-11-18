@@ -4,7 +4,7 @@ Build a small **REST API** for scheduling security agents onto shifts. The work 
 split into three short iterations, each in its own file. You'll be given a sample
 database (`data.json`) to work from.
 
-Suggested effort: **1–2 hours**. A clean Iteration 1 beats a broken Iteration 3.
+There is no time limit. Take the time you need. A clean Iteration 1 beats a broken Iteration 3.
 
 ## How to work through it
 

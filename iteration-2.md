@@ -37,4 +37,7 @@ Two things must hold after a successful booking:
 - Booking onto a full shift returns `409`.
 - A booking made through `POST` immediately changes what `GET` returns.
 
+## What we evaluate
+- How well your Iteration 1 code absorbed this change.
+
 *When this works and is committed, move on to Iteration 3.*

@@ -45,4 +45,8 @@ GET /api/shifts/shf_2/available-agents
 - Agents booked on an overlapping shift are excluded.
 - A missing shift returns `404`.
 
+## What we evaluate
+- Correctness of the availability rules, including edge cases (overnight shifts, shifts that only touch, shifts with no requirements).
+- How you structure the code: where the availability logic lives and how easy it is to test.
+
 *When this works and is committed, move on to Iteration 2.*
